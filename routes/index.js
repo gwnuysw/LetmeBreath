@@ -1,28 +1,59 @@
-var express = require('express');
-var router = express.Router();
-var http = require('http');
-var options = {
-    hostname: 'openapi.airkorea.or.kr',
-    path: '/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnMesureLIst?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=10&pageNo=1&itemCode=PM10&dataGubun=HOUR&searchCondition=MONTH'
-  };
-
-function handleResponse(response) {
-  var serverData = '';
-  response.on('data', function (chunk) {
-    serverData += chunk;
-  });
-  response.on('end', function () {
-    console.log("received server data:");
-    console.log(serverData);
-  });
-}
-
+let express = require('express');
+let router = express.Router();
+let http = require('http');
+let parser = require('xml2json');
+let station = require('../schemas/station');
+let Promise = require("bluebird");
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  http.request(options, function(response){
-    handleResponse(response);
-  }).end();
-  res.render('index', { title: 'Express' });
+  /*시도 이름 (서울, 부산, 대구, 인천, 광주,
+            대전, 울산, 경기, 강원, 충북,
+            충남, 전북, 전남, 경북, 경남,
+            제주, 세종)*/
+  let city = ['%EC%84%9C%EC%9A%B8','%EB%B6%80%EC%82%B0','%EB%8C%80%EA%B5%AC','%EC%9D%B8%EC%B2%9C','%EA%B4%91%EC%A3%BC',
+              '%EB%8C%80%EC%A0%84','%EC%9A%B8%EC%82%B0','%EA%B2%BD%EA%B8%B0','%EA%B0%95%EC%9B%90','%EC%B6%A9%EB%B6%81',
+              '%EC%B6%A9%EB%82%A8','%EC%A0%84%EB%B6%81','%EC%A0%84%EB%82%A8','%EA%B2%BD%EB%B6%81','%EA%B2%BD%EB%82%A8',
+              '%EC%A0%9C%EC%A3%BC','%EC%84%B8%EC%A2%85'];
+  let options = {
+    hostname: 'openapi.airkorea.or.kr',
+    path: ''
+  };
+  let prevPath = '/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=100&pageNo=1&sidoName=';
+  let postPath = '&ver=1.3';
+  for (let citiName of city){
+    new Promise((resolve, reject)=>{
+      options.path = prevPath+citiName+postPath;
+      console.log(options.path);
+      http.request(options, function(response){
+        console.log('response : ', response);
+        resolve(response);
+      }).end();
+    })
+    .then((response)=>{
+      return new Promise ((resolve, reject)=>{
+        let data = '';
+        response.on('data', function (chunk) {
+          data += chunk;
+        });
+        response.on('end', function () {
+          resolve(data);
+        });
+      });
+    })
+    .then((xml)=>{
+      let json = JSON.parse(parser.toJson(xml));
+      console.log('check json');
+      console.log(json.response.body.items.item);
+      for (let item of json.response.body.items.item){
+        console.log(item.stationName);
+      }
+      return json;
+    })
+    .catch((error)=>{
+      console.log(error);
+    })
+  }
+  res.render('index', { title: 'Express'});
 });
 
 module.exports = router;

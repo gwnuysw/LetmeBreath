@@ -10,4 +10,4 @@ const stationSchema = new Schema({
   }
 });
 
-module.exports = mongoose.model('location', stationSchema);
+module.exports = mongoose.model('station', stationSchema);
