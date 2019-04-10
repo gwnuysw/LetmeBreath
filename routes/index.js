@@ -3,6 +3,9 @@ let router = express.Router();
 let http = require('http');
 var parser = require('xml2json');
 let station = require('../schemas/station');
+let promiseLimit = require('promise-limit');
+
+
 /* GET home page. */
 router.get('/', function(req, res, next) {
   /*시도 이름 (서울, 부산, 대구, 인천, 광주,
@@ -15,14 +18,22 @@ router.get('/', function(req, res, next) {
               '%EC%A0%9C%EC%A3%BC','%EC%84%B8%EC%A2%85'];
   let options = {
     hostname: 'openapi.airkorea.or.kr',
-    path: '/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=100&pageNo=1&sidoName=%EC%84%9C%EC%9A%B8&ver=1.3'
+    path: ''
   };
-  new Promise((resolve, reject)=>{
-    http.request(options, function(response){
-      resolve(response);
-    }).end();
-  })
-  .then((response)=>{
+  let prevUri = '/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=100&pageNo=1&sidoName=';
+  let postUri = '&ver=1.3';
+  let limit = promiseLimit(1);
+  let countStation = 0;
+  function dataRequest(element){
+    return new Promise((resolve, reject)=>{
+      console.log('start request ',element);
+      options.path = prevUri+element+postUri;
+      http.request(options, function(response){
+        resolve(response);
+      }).end();
+    })
+  }
+  function extractData(response){
     return new Promise ((resolve, reject)=>{
       let data = '';
       response.on('data', function (chunk) {
@@ -32,19 +43,29 @@ router.get('/', function(req, res, next) {
         resolve(data);
       });
     });
-  })
-  .then((xml)=>{
-    let json = JSON.parse(parser.toJson(xml));
-    console.log('check json');
-    console.log(json.response.body.items.item);
-    for (let item of json.response.body.items.item){
-      console.log(item.stationName);
-    }
-    return json;
-  })
-  .catch((error)=>{
-    console.log(error);
-  })
+  }
+  Promise.all(city.map((element)=>{
+    return limit(()=>dataRequest(element));
+  }))
+  .then(responses=>{
+    Promise.all(responses.map(function(response){
+      return extractData(response);
+    }))
+    .then(xmls=>{
+      xmls.map((xml)=>{
+        let json = JSON.parse(parser.toJson(xml));
+        console.log('check json');
+        for (let item of json.response.body.items.item){
+          countStation++;
+          let newStation = new station({
+            name : item.stationName
+          })
+          newStation.save();
+        }
+      });
+      console.log('numberOfcount : ',countStation);
+    });
+  });
   res.render('index', { title: 'Express'});
 });
 
