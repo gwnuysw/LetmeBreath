@@ -1,9 +1,8 @@
 let express = require('express');
 let router = express.Router();
 let http = require('http');
-let parser = require('xml2json');
+var parser = require('xml2json');
 let station = require('../schemas/station');
-let Promise = require("bluebird");
 /* GET home page. */
 router.get('/', function(req, res, next) {
   /*시도 이름 (서울, 부산, 대구, 인천, 광주,
@@ -16,43 +15,36 @@ router.get('/', function(req, res, next) {
               '%EC%A0%9C%EC%A3%BC','%EC%84%B8%EC%A2%85'];
   let options = {
     hostname: 'openapi.airkorea.or.kr',
-    path: ''
+    path: '/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=100&pageNo=1&sidoName=%EC%84%9C%EC%9A%B8&ver=1.3'
   };
-  let prevPath = '/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=100&pageNo=1&sidoName=';
-  let postPath = '&ver=1.3';
-  for (let citiName of city){
-    new Promise((resolve, reject)=>{
-      options.path = prevPath+citiName+postPath;
-      console.log(options.path);
-      http.request(options, function(response){
-        console.log('response : ', response);
-        resolve(response);
-      }).end();
-    })
-    .then((response)=>{
-      return new Promise ((resolve, reject)=>{
-        let data = '';
-        response.on('data', function (chunk) {
-          data += chunk;
-        });
-        response.on('end', function () {
-          resolve(data);
-        });
+  new Promise((resolve, reject)=>{
+    http.request(options, function(response){
+      resolve(response);
+    }).end();
+  })
+  .then((response)=>{
+    return new Promise ((resolve, reject)=>{
+      let data = '';
+      response.on('data', function (chunk) {
+        data += chunk;
       });
-    })
-    .then((xml)=>{
-      let json = JSON.parse(parser.toJson(xml));
-      console.log('check json');
-      console.log(json.response.body.items.item);
-      for (let item of json.response.body.items.item){
-        console.log(item.stationName);
-      }
-      return json;
-    })
-    .catch((error)=>{
-      console.log(error);
-    })
-  }
+      response.on('end', function () {
+        resolve(data);
+      });
+    });
+  })
+  .then((xml)=>{
+    let json = JSON.parse(parser.toJson(xml));
+    console.log('check json');
+    console.log(json.response.body.items.item);
+    for (let item of json.response.body.items.item){
+      console.log(item.stationName);
+    }
+    return json;
+  })
+  .catch((error)=>{
+    console.log(error);
+  })
   res.render('index', { title: 'Express'});
 });
 
