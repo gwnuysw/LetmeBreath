@@ -7,6 +7,14 @@ const stationSchema = new Schema({
     type: String,
     required: true,
     unique: true
+  },
+  dmx:{
+    type: Number,
+    required : true
+  },
+  dmy:{
+    type: Number,
+    required : true
   }
 });
 

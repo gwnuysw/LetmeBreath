@@ -20,17 +20,18 @@ router.get('/', function(req, res, next) {
     hostname: 'openapi.airkorea.or.kr',
     path: ''
   };
-  let prevUri = '/openapi/services/rest/ArpltnInforInqireSvc/getCtprvnRltmMesureDnsty?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=100&pageNo=1&sidoName=';
-  let postUri = '&ver=1.3';
+  let prevUri = '/openapi/services/rest/MsrstnInfoInqireSvc/getMsrstnList?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=100&pageNo=1&addr=';
   let limit = promiseLimit(1);
   let countStation = 0;
   function dataRequest(element){
     return new Promise((resolve, reject)=>{
-      console.log('start request ',element);
-      options.path = prevUri+element+postUri;
-      http.request(options, function(response){
-        resolve(response);
-      }).end();
+      setTimeout(
+        function(){
+          console.log('start request ',element);
+          options.path = prevUri+element;
+          http.request(options, function(response){
+          resolve(response);
+      }).end()}, 1000);
     })
   }
   function extractData(response){
@@ -57,7 +58,9 @@ router.get('/', function(req, res, next) {
         for (let item of json.response.body.items.item){
           countStation++;
           let newStation = new station({
-            name : item.stationName
+            name : item.stationName,
+            dmx : item.dmX,
+            dmy : item.dmY
           })
           newStation.save();
         }
