@@ -7,7 +7,7 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var stationRouter = require('./routes/station');
-
+var pinedustRouter = require('./routes/pinedust');
 var app = express();
 
 //몽고 데이터베이스 접속 mongodb connect
@@ -27,6 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/station',stationRouter);
+app.use('/pinedust',pinedustRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
