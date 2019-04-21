@@ -8,12 +8,14 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var stationRouter = require('./routes/station');
 var pinedustRouter = require('./routes/pinedust');
+var askdust = require('./bin/pinedust');
 var app = express();
 
 //몽고 데이터베이스 접속 mongodb connect
 const connect = require('./schemas');
 connect();
-
+//running background
+setInterval(askdust, 1*60*1000);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');

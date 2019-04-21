@@ -6,8 +6,7 @@ let pinedust = require('../schemas/pinedust');
 let promiseLimit = require('promise-limit');
 var parser = require('xml2js').parseString;
 /* GET station name from public data portal */
-router.get('/', function(req, res, next) {
-
+function askdust() {
   // let stations = [];
   let options = {
     hostname: 'openapi.airkorea.or.kr',
@@ -81,8 +80,6 @@ router.get('/', function(req, res, next) {
       });
     });
   })
+};
 
-  res.render('index', { title: 'Express'});
-});
-
-module.exports = router;
+module.exports = askdust;
