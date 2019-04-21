@@ -46,6 +46,6 @@ router.get('/:dmx?/:dmy?', async function(req, res, next) {
   stringedJSON = JSON.stringify(target.pinedust);
   // properties = Object.keys(target.pinedust);
   // console.log(properties);
-  res.render('showdust', { title: 'Express', pinedust: stringedJSON});
+  res.send(stringedJSON);
 });
 module.exports = router;
