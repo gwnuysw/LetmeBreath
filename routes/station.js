@@ -1,7 +1,7 @@
 let express = require('express');
 let router = express.Router();
 let http = require('http');
-var parser = require('xml2json');
+var parser = require('xml2js').parseString;
 let station = require('../schemas/station');
 let promiseLimit = require('promise-limit');
 
@@ -13,9 +13,7 @@ router.get('/', function(req, res, next) {
             충남, 전북, 전남, 경북, 경남,
             제주, 세종)*/
   let city = ['%EC%84%9C%EC%9A%B8','%EB%B6%80%EC%82%B0','%EB%8C%80%EA%B5%AC','%EC%9D%B8%EC%B2%9C','%EA%B4%91%EC%A3%BC',
-              '%EB%8C%80%EC%A0%84','%EC%9A%B8%EC%82%B0','%EA%B2%BD%EA%B8%B0','%EA%B0%95%EC%9B%90','%EC%B6%A9%EB%B6%81',
-              '%EC%B6%A9%EB%82%A8','%EC%A0%84%EB%B6%81','%EC%A0%84%EB%82%A8','%EA%B2%BD%EB%B6%81','%EA%B2%BD%EB%82%A8',
-              '%EC%A0%9C%EC%A3%BC','%EC%84%B8%EC%A2%85'];
+              '%EB%8C%80%EC%A0%sBC','%EC%84%B8%EC%A2%85'];
   let options = {
     hostname: 'openapi.airkorea.or.kr',
     path: ''
@@ -54,18 +52,29 @@ router.get('/', function(req, res, next) {
     }))
     .then(xmls=>{
       xmls.map((xml)=>{
-        let json = JSON.parse(parser.toJson(xml));
-        for (let item of json.response.body.items.item){
-          countStation++;
-          let newStation = new station({
-            name : item.stationName,
-            dmx : item.dmX,
-            dmy : item.dmY
-          })
-          newStation.save();
-        }
+        parser(xml, async function(err, object){
+          for (let item of object.response.body[0].items[0].item){
+            countStation++;
+            let doc, temp;
+            doc = await station.findOne({name:item.stationName[0]});
+            if(doc != undefined){
+              doc.dmx = item.dmX[0];
+              doc.dmx = item.dmY[0];
+              await doc.save();
+            }
+            else{
+              let newStation = new station({
+                name : item.stationName[0],
+                dmx : item.dmX[0],
+                dmy : item.dmY[0]
+              })
+              await newStation.save();
+            }
+          }
+          console.log('numberOfcount : ',countStation);
+        });
       });
-      console.log('numberOfcount : ',countStation);
+
     });
   });
   res.render('index', { title: 'Express'});

@@ -1,11 +1,10 @@
 let express = require('express');
 let router = express.Router();
 let http = require('http');
-let parser = require('xml2json');
 let station = require('../schemas/station');
 let pinedust = require('../schemas/pinedust');
 let promiseLimit = require('promise-limit');
-
+var parser = require('xml2js').parseString;
 /* GET station name from public data portal */
 router.get('/', function(req, res, next) {
 
@@ -54,11 +53,12 @@ router.get('/', function(req, res, next) {
       }))
       .then((xmls)=>{
         xmls.map((xml)=>{
-          let json = JSON.parse(parser.toJson(xml[0]));
-          pinedust.find({name:xml[1]})
-          .then((result)=>{
-            result.pinedust = json.response.body.items.item;
-            result.save();
+          parser(xml, async function(err, object){
+            pinedust.find({name:xml[1]})
+            .then((result)=>{
+              result.pinedust = json.response.body.items.item;
+              result.save();
+            })
           })
           //미세먼지 데이터 초기화
           // let newPindust = new pinedust({
