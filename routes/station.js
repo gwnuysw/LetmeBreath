@@ -25,7 +25,6 @@ router.get('/', function(req, res, next) {
     return new Promise((resolve, reject)=>{
       setTimeout(
         function(){
-          console.log('start request ',element);
           options.path = prevUri+element;
           http.request(options, function(response){
           resolve(response);
@@ -71,7 +70,6 @@ router.get('/', function(req, res, next) {
               await newStation.save();
             }
           }
-          console.log('numberOfcount : ',countStation);
         });
       });
 

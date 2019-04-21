@@ -21,7 +21,6 @@ function askdust() {
       setTimeout(
         function(){
           options.path = prevUri+element+postUri;
-          console.log(element);
           http.request(options, function(response){
             resolve([response, city]);
           }).end()
@@ -54,7 +53,6 @@ function askdust() {
       .then((xmls)=>{
         xmls.map((xml)=>{
           parser(xml, async function(err, object){
-            console.log('find!', object.response.body[0].items[0]);
             let doc = await pinedust.findOne({name:xml[1]});
             if(doc != undefined){
               doc.pinedust = object.response.body[0].items[0].item;
@@ -76,7 +74,6 @@ function askdust() {
           // newPindust.save();
           // countStation++;
         });
-        console.log('numberOfcount : ',countStation);
       });
     });
   })

@@ -12,7 +12,6 @@ router.get('/:dmx?/:dmy?', async function(req, res, next) {
     dmx: req.params.dmx,
     dmy: req.params.dmy
   };
-  console.log(req.params.dmx,' ', req.params.dmy);
   let docs = await station.find({});
   let shortDistance = docs.map((element)=>{
     let x, y;
