@@ -4,85 +4,49 @@ let http = require('http');
 let station = require('../schemas/station');
 let pinedust = require('../schemas/pinedust');
 let promiseLimit = require('promise-limit');
-var parser = require('xml2js').parseString;
+let parser = require('xml2js').parseString;
+let prettyjson = require('prettyjson');
 /* GET station name from public data portal */
-router.get('/', function(req, res, next) {
-
-  // let stations = [];
-  let options = {
-    hostname: 'openapi.airkorea.or.kr',
-    path: ''
+router.get('/:dmx?/:dmy?', async function(req, res, next) {
+  let data = {
+    dmx: req.params.dmx,
+    dmy: req.params.dmy
   };
-  let prevUri = '/openapi/services/rest/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=ourKx7GX1hiVXuydX8SKTR4guDtUKIWAQ%2Fh02M4VM9dzsA7o3OfS1wa6VgdZFrLUrYLqTSFiQZJ821JHALxR%2FQ%3D%3D&numOfRows=24&pageNo=1&stationName=';
-  let postUri = '&dataTerm=DAILY&ver=1.3';
-  let limit = promiseLimit(1);
-  let countStation = 0;
-  function dataRequest(element, city){
-    return new Promise((resolve, reject)=>{
-      setTimeout(
-        function(){
-          options.path = prevUri+element+postUri;
-          console.log(element);
-          http.request(options, function(response){
-            resolve([response, city]);
-          }).end()
-        }, 1000);
-    })
-  }
-  function extractData(response, element){
-    return new Promise ((resolve, reject)=>{
-      let data = '';
-      response.on('data', function (chunk) {
-        data += chunk;
-      });
-      response.on('end', function () {
-        resolve([data, element]);
-      });
-    });
-  }
-
-/**/
-  station.find({name:'종로'})
-  .then((result)=>{
-    stations = result;
-    Promise.all(stations.map((element)=>{
-      return limit(()=>dataRequest(encodeURI(element.name), element.name));
-    }))
-    .then((responses)=>{
-      Promise.all(responses.map(function(response){
-        return extractData(response[0], response[1]);
-      }))
-      .then((xmls)=>{
-        xmls.map((xml)=>{
-          parser(xml, async function(err, object){
-            console.log('find!', object.response.body[0].items[0]);
-            let doc = await pinedust.findOne({name:xml[1]});
-            if(doc != undefined){
-              doc.pinedust = object.response.body[0].items[0].item;
-              await doc.save();
-            }
-            else{
-              let newPindust = new pinedust({
-                name : xml[1],
-                pinedust : object.response.body[0].items[0].item
-              })
-              await newPindust.save();
-            }
-          })
-          //미세먼지 데이터 초기화
-          // let newPindust = new pinedust({
-          //   name : xml[1],
-          //   pinedust : json.response.body.items.item
-          // })
-          // newPindust.save();
-          // countStation++;
-        });
-        console.log('numberOfcount : ',countStation);
-      });
-    });
-  })
-
-  res.render('index', { title: 'Express'});
+  console.log(req.params.dmx,' ', req.params.dmy);
+  let docs = await station.find({});
+  let shortDistance = docs.map((element)=>{
+    let x, y;
+    let distance;
+    x = (element.dmx - data.dmx);
+    y = (element.dmy - data.dmy);
+    distance = (x * x) + (y * y);
+    return {
+      name: element.name,
+      distance: distance
+    };
+  });
+  shortDistance.sort((a,b)=>{
+    if(a.distance < b.distance){
+      return -1;
+    }
+    else if (a.distance > b.distance){
+      return 1;
+    }
+    else{
+      return 0;
+    }
+  });
+  let target = await pinedust.findOne({name:shortDistance[0].name});
+  let result={};
+  let stringedJSON;
+  let prettiedJSON;
+  let properties;
+  target.pinedust = target.pinedust[0];
+  target.pinedust.name = target.name;
+  // prettiedJSON = prettyjson.render(target.pinedust, {noColor:true});
+  stringedJSON = JSON.stringify(target.pinedust);
+  // properties = Object.keys(target.pinedust);
+  // console.log(properties);
+  res.render('showdust', { title: 'Express', pinedust: stringedJSON});
 });
-
 module.exports = router;

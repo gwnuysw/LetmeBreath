@@ -15,7 +15,7 @@ var app = express();
 const connect = require('./schemas');
 connect();
 //running background
-setInterval(askdust, 1*60*1000);
+setInterval(askdust, 24*60*60*1000);
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
