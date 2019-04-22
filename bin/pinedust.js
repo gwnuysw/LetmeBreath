@@ -40,7 +40,7 @@ function askdust() {
   }
 
 /**/
-  station.find({name:'종로'})
+  station.find({})
   .then((result)=>{
     stations = result;
     Promise.all(stations.map((element)=>{
