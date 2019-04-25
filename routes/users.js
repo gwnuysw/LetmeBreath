@@ -12,6 +12,11 @@ router.get('/joinpage', isNotLoggedIn, function(req, res, next) {
 router.get('/loginpage',isNotLoggedIn, function(req, res, next){
   res.render('loginpage');
 });
+router.get('/logout',isLoggedIn,(req,res)=>{
+  req.logout();
+  req.session.destroy();
+  res.redirect('/');
+});
 router.post('/join', async function(req,res,next){
   let user = {
     id: req.body.id,
