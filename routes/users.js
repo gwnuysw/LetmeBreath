@@ -6,7 +6,6 @@ let passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 /* GET users listing. */
 router.get('/joinpage', isNotLoggedIn, function(req, res, next) {
-  console.log(req.isAuthenticated());
   res.render('joinpage');
 });
 router.get('/loginpage',isNotLoggedIn, function(req, res, next){
@@ -24,12 +23,12 @@ router.post('/join', async function(req,res,next){
     age: req.body.age,
     weight: req.body.weight
   };
-  console.log(req);
-  let getuser = await users.find({id:user.id});
+  let getuser = await users.findOne({id:user.id});
+  console.log(getuser);
   if(getuser == undefined){
     let newUser = new users(user);
     await newUser.save();
-    res.send('로그인 되었습니다.');
+    res.send('회원가입 되었습니다.');
   }
   else{
     res.send('id가 이미 존재합니다.');
