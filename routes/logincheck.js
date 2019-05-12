@@ -3,7 +3,7 @@ exports.isLoggedIn = (req, res, next) => {
     next();
   }
   else{
-    res.status(403).send('로그인 필요');
+    res.redirect('/users/loginpage');
   }
 };
 exports.isNotLoggedIn = (req, res, next)=>{
