@@ -1,6 +1,12 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
-  p #{result}
+
+  script(type='text/javascript').
+    function sendData() {
+      Android.showToast("#{user.id}", "#{user.age}", "#{user.weight}");
+    }
+    sendData();
+  a(href="/users/logout") 로그아웃
+  br
+  button(onclick="sendData()") 미세먼지 보기
