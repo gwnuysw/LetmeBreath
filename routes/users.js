@@ -22,10 +22,8 @@ router.get('/update',isLoggedIn,(req,res)=>{
   res.render('update');
 });
 router.post('/update', isLoggedIn, async (req,res)=>{
-  let getuser = await users.find({id:req.body.id});
-  getuser.age = req.body.age;
-  getuser.weight = req.body.weight;
-  await getuser.save();
+  console.log(req.user);
+  await users.updateOne({id:req.user[0].id}, {$set:{age:req.body.age, weight:req.body.weight}});
   res.redirect('/');
 });
 router.post('/join', async function(req,res,next){
