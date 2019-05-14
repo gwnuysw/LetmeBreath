@@ -17,6 +17,16 @@ router.get('/logout',isLoggedIn,(req,res)=>{
   req.session.destroy();
   res.redirect('/');
 });
+router.get('/update',isLoggedIn,(req,res)=>{
+  res.render('update');
+});
+router.post('/update', isLoggedIn, async (req,res)=>{
+  let getuser = await users.find({id:req.body.id});
+  getuser.age = req.body.age;
+  getuser.weight = req.body.weight;
+  await getuser.save();
+  res.redirect('/');
+});
 router.post('/join', async function(req,res,next){
   let user = {
     id: req.body.id,
@@ -24,9 +34,9 @@ router.post('/join', async function(req,res,next){
     age: req.body.age,
     weight: req.body.weight
   };
-  console.log(req);
   let getuser = await users.find({id:user.id});
-  if(getuser == undefined){
+  console.log(getuser);
+  if(getuser.length() < 1){
     let newUser = new users(user);
     await newUser.save();
     res.send('로그인 되었습니다.');
@@ -53,4 +63,5 @@ router.post('/login', isNotLoggedIn, async function(req, res, next){
     });
   })(req, res, next);
 });
+
 module.exports = router;

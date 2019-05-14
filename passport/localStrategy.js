@@ -9,6 +9,7 @@ module.exports = (passport) => {
   }, async (username, password, done)=>{
     try {
       const exUser = await users.findOne({id:username});
+
       if(exUser){
         if(exUser.pw === password){
           done(null, exUser);

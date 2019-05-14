@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  form(action="/profile/update", method="post")
+    div
+      label(for="age") 나이
+      input(type="number", name="age")
+    div
+      label(for="weight") 몸무게
+      input(type="number", name="weight")
+    input(type="submit", value="submit")
