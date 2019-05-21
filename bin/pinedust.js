@@ -54,15 +54,23 @@ function askdust() {
         xmls.map((xml)=>{
           parser(xml, async function(err, object){
             let doc = await pinedust.findOne({name:xml[1]});
+            let dustData = object.response.body[0].items[0].item;
+            let trimed = dustData.map((hourData)=>{
+              for(let key in hourData){
+                hourData[key] = hourData[key][0];
+              }
+              return hourData;
+            });
             if(doc != undefined){
-              doc.pinedust = object.response.body[0].items[0].item;
+              doc.pinedust = trimed;
               await doc.save();
             }
             else{
               let newPindust = new pinedust({
                 name : xml[1],
-                pinedust : object.response.body[0].items[0].item
+                pinedust : trimed
               })
+
               await newPindust.save();
             }
           })
