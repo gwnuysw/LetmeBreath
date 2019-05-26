@@ -10,6 +10,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var stationRouter = require('./routes/station');
 var pinedustRouter = require('./routes/finedust');
+var updateRouter = require('./routes/update');
 var askdust = require('./bin/pinedust');
 var app = express();
 
@@ -45,6 +46,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/station',stationRouter);
 app.use('/finedust',pinedustRouter);
+app.use('/update',updateRouter);
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
