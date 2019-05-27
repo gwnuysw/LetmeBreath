@@ -83,7 +83,7 @@ router.get('/:dmx?/:dmy?/:time?', async function(req, res, next) {
   result = target.pinedust.find((element)=>{
     return element.dataTime.includes(req.params.time+":00");
   })
-  target.name = target.name;
+  result.name = target.name;
   // prettiedJSON = prettyjson.render(target.pinedust, {noColor:true});
   stringedJSON = JSON.stringify(result);
   // properties = Object.keys(target.pinedust);
