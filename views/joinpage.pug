@@ -1,20 +1,21 @@
 extends layout
 
 block content
-  form(action="/users/join", method="post")
-    div
-      label(for="id") ID
-      input(type="text", name="id")
-    div
-      label(for="password") Password
-      input(type="password", name="pw")
-    div
-      label Confirm Password
-      input(type="password", name="pwconfirm")
-    div
-      label(for="age") age
-      input(type="number", name="age")
-    div
-      label(for="weight") weight
-      input(type="number", name="weight")
-    input(type="submit", value="submit")
+  form(action="/users/join", method="post", class="modal-content")
+    div(class="container")
+      label(for="id")
+        b ID
+      input(type="text", name="id", placeholder="Enter User ID")
+      label(for="password")
+        b Password
+      input(type="password", name="pw", placeholder="Enter Password")
+      label
+        b Confirm Password
+      input(type="password", name="pwconfirm", placeholder="reEnter Password")
+      label(for="age")
+        b age
+      input(type="number", name="age", placeholder="Enter your age")
+      label(for="weight")
+        b weight
+      input(type="number", name="weight" placeholder="Enter your weight")
+      button(type="submit") 회원가입
