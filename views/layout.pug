@@ -2,7 +2,15 @@ doctype html
 html
   head
     style(type="text/css").
-      body {font-family: Arial, Helvetica, sans-serif;}
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        background-color: #00ffff;
+      }
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+      }
       /* Full-width input fields */
       input[type=text], input[type=password], input[type=number] {
         width: 100%;
@@ -36,4 +44,5 @@ html
         width: 80%; /* Could be more or less, depending on screen size */
       }
   body
+    img.image(src="/images/smile.png")
     block content
