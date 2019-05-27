@@ -2,10 +2,6 @@ let express = require('express');
 let router = express.Router();
 let users = require('../schemas/user');
 let breathIn = require('../schemas/breathIn');
-let { isLoggedIn, isNotLoggedIn } = require('./logincheck');
-let passport = require('passport');
-let bcrypt = require('bcrypt');
-const LocalStrategy = require('passport-local').Strategy;
 router.get('/:id?/:dust?/:finedust', async function(req,res,next){
   let breathData = {
     userid : req.params.id,
@@ -21,3 +17,4 @@ router.get('/:id?/:dust?/:finedust', async function(req,res,next){
   });
   res.send(checkinsert);
 });
+module.exports = router;
