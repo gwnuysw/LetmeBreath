@@ -90,4 +90,5 @@ router.get('/:dmx?/:dmy?/:time?', async function(req, res, next) {
   // console.log(properties);
   res.send(stringedJSON);
 });
+
 module.exports = router;

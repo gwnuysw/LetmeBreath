@@ -18,6 +18,14 @@ const breathInSchema = new Schema({
   finedust:{
     type: Number,
     required: true
+  },
+  dmx:{
+    type:Number,
+    required: true
+  },
+  dmy:{
+    type: Number,
+    required : true
   }
 });
 
