@@ -75,7 +75,7 @@ function askdust() {
             doc = await station.findOne({name:item.stationName[0]});
             if(doc != undefined){
               doc.dmx = item.dmX[0];
-              doc.dmx = item.dmY[0];
+              doc.dmy = item.dmY[0];
               await doc.save();
             }
             else{

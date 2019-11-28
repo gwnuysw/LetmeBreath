@@ -8,8 +8,8 @@ const breathInSchema = new Schema({
     required: true,
   },
   createdAt:{
-    type: Date,
-    default : Date.now
+    type: Number,
+    required: true
   },
   dust:{
     type: Number,
@@ -26,6 +26,10 @@ const breathInSchema = new Schema({
   dmy:{
     type: Number,
     required : true
+  },
+  location:{
+    type: String,
+    required: true
   }
 });
 
