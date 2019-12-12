@@ -5,7 +5,7 @@ let breathIn = require('../schemas/breathIn');
 //나의 통계치 계산
 router.get('/mystats', async function(req, res, next){
   if(req.user){
-    let stats = {};
+
     let docs = await breathIn.find({userid: req.user[0].id});
     let totaldust = 0;
     let totalFinedust = 0;
@@ -34,21 +34,35 @@ router.get('/mystats', async function(req, res, next){
       totaldust += data.dust;
       totalFinedust += data.finedust;
     }
-
-    let breathinArea = docs.location
-    stats.id = req.user[0].id;
-    stats.totaldust = totaldust;
-    stats.totalFinedust = totalFinedust;
-    stats.DayAverageDust = totaldust/docs.length;
-    stats.DayAverageFinedust = totalFinedust/docs.length;
-    stats.bigInDust = bigInDust;
-    stats.smallInDust = smallInDust;
-    stats.bigInFineDust = bigInFineDust;
-    stats.smallInFineDust = smallInDust;
-    console.log(totalFinedust, docs.length);
-    let newstats = new statistics(stats);
-    await newstats.save();
-    res.send(stats);
+    let exsistStats = await statistics.find({id: req.user[0].id});
+    if(exsistStats){
+      await statistics.update({userid:req.user[0].id},{$set:{
+        totaldust : totaldust,
+        totalFinedust : totalFinedust,
+        DayAverageDust : totaldust/docs.length,
+        DayAverageFinedust : totalFinedust/docs.length,
+        bigInDust : bigInDust,
+        smallInDust : smallInDust,
+        bigInFineDust : bigInFineDust,
+        smallInFineDust : smallInDust
+      }});
+      let exsistStats = await statistics.find({id: req.user[0].id});
+      res.send(exsistStats[0]);
+    }else{
+      let stats = {};
+      stats.id = req.user[0].id;
+      stats.totaldust = totaldust;
+      stats.totalFinedust = totalFinedust;
+      stats.DayAverageDust = totaldust/docs.length;
+      stats.DayAverageFinedust = totalFinedust/docs.length;
+      stats.bigInDust = bigInDust;
+      stats.smallInDust = smallInDust;
+      stats.bigInFineDust = bigInFineDust;
+      stats.smallInFineDust = smallInDust;
+      let newstats = new statistics(stats);
+      await newstats.save();
+      res.send(stats);
+    }
   }else{
     res.status('404').send("User Not Log in");
   }
