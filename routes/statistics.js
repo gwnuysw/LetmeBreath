@@ -27,15 +27,13 @@ router.get('/mystats/:userid', async function(req, res, next){
 
   let smallInFineDust = docs[0].finedust;
   let bigInFineDust = docs[docs.length - 1].finedust;
-
   for(data of docs){
     totaldust += data.dust;
     totalFinedust += data.finedust;
   }
   let exsistStats = await statistics.find({id: req.params.userid});
-  console.log(exsistStats);
   if(exsistStats.length != 0){
-    await statistics.update({userid:req.params.userid},{$set:{
+    await statistics.update({id:req.params.userid},{$set:{
       totaldust : totaldust,
       totalFinedust : totalFinedust,
       DayAverageDust : totaldust/docs.length,
@@ -43,7 +41,7 @@ router.get('/mystats/:userid', async function(req, res, next){
       bigInDust : bigInDust,
       smallInDust : smallInDust,
       bigInFineDust : bigInFineDust,
-      smallInFineDust : smallInDust
+      smallInFineDust : smallInFineDust
     }});
     let exsistStats = await statistics.find({id: req.params.userid});
     res.send(exsistStats[0]);
@@ -57,7 +55,7 @@ router.get('/mystats/:userid', async function(req, res, next){
     stats.bigInDust = bigInDust;
     stats.smallInDust = smallInDust;
     stats.bigInFineDust = bigInFineDust;
-    stats.smallInFineDust = smallInDust;
+    stats.smallInFineDust = smallInFineDust;
     let newstats = new statistics(stats);
     await newstats.save();
     res.send(stats);
