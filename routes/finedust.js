@@ -92,8 +92,8 @@ router.get('/:dmx?/:dmy?/:time?', async function(req, res, next) {
   res.send(stringedJSON);
 });
 //하루동안의 흡입량 저장
-router.get('/:date?/:dust?/:finedust?/:dmx?/:dmy?', async function(req, res, next){
-  if (req.user) {
+router.get('/:userid?/:date?/:dust?/:finedust?/:dmx?/:dmy?', async function(req, res, next){
+  if (req.params.userid) {
     let data = {
       dmx: req.params.dmx,
       dmy: req.params.dmy
@@ -124,7 +124,7 @@ router.get('/:date?/:dust?/:finedust?/:dmx?/:dmy?', async function(req, res, nex
     });
     console.log(req.user);
     let newBreath = new breathIn({
-      userid: req.user[0].id,
+      userid: req.params.userid,
       createdAt: new Date(Number(req.params.date)),
       dust: req.params.dust,
       finedust: req.params.finedust,
