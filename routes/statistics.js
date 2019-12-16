@@ -62,7 +62,7 @@ router.get('/mystats/:userid', async function(req, res, next){
   }
 });
 router.get('/others/:userid',async function(req,res, next){
-  let otherPeaple = await statistics.find({id:{$ne:req.params.userid}});
+  let otherPeaple = await statistics.find();
   console.log(otherPeaple);
   let dustAverage = 0;
   let finedustAverage = 0;
